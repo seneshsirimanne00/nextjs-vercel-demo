@@ -37,7 +37,7 @@ export default function Home() {
             <h2 className="text-xl font-semibold">Static Image</h2>
             <div className="relative h-64 w-full">
               <Image 
-                src="/static-image.jpg"
+                src="/testimage.png"
                 alt="Static Image"
                 fill
                 className="object-cover rounded-lg"

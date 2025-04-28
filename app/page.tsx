@@ -6,6 +6,7 @@ import Image from 'next/image';
 export default function Home() {
   const [text, setText] = useState('Hello World');
   const [uploadedImageUrl, setUploadedImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleTextChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const response = await fetch('/api/updateText', {
@@ -22,8 +23,29 @@ export default function Home() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
     
-    // We'll implement this later with Vercel Blob
-    console.log('Image upload functionality will be added later');
+    setIsUploading(true);
+    try {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const blob = await response.json();
+      setUploadedImageUrl(blob.url);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -58,7 +80,9 @@ export default function Home() {
                 />
               ) : (
                 <div className="flex items-center justify-center h-full">
-                  <p className="text-gray-500">No image uploaded yet</p>
+                  <p className="text-gray-500">
+                    {isUploading ? 'Uploading...' : 'No image uploaded yet'}
+                  </p>
                 </div>
               )}
             </div>
@@ -84,6 +108,7 @@ export default function Home() {
               onChange={handleImageUpload}
               accept="image/*"
               className="w-full p-2 border rounded"
+              disabled={isUploading}
             />
           </div>
         </div>
